@@ -1,0 +1,26 @@
+defaults:
+  - _self_
+  - model: xgboost
+  - preprocessing: iris
+  - override hydra/sweeper: optuna
+  - override hydra/sweeper: tpe
+
+dataset: data/iris.parquet
+model_path: model/iris.pkl
+metrics_file: src/metrics.json
+training_dataset: data/training_data.parqeut
+experiment_name: default
+dvc_dir: src
+
+
+hydra:
+  sweeper:
+    direction: maximize
+    study_name: default
+    storage: null
+    n_trials: 20
+    n_jobs: 1
+    sampler:
+      seed: 123
+  sweep:
+    dir: multirun

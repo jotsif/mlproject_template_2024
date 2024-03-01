@@ -1,0 +1,7 @@
+[hydra]
+    enabled = False
+    config_dir = config
+[core]
+    remote = modulai
+['remote "modulai"']
+    url = s3://mlproject-template-2024/

@@ -1,0 +1,8 @@
+date_column: year
+train_fraction: 0.7
+features:
+  - "sepal length (cm)"
+  - "sepal width (cm)"
+  - "petal length (cm)"
+  - "petal width (cm)"
+target: "target"

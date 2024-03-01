@@ -1,0 +1,18 @@
+model_file: src/models/xgboost_iris.py
+
+model_class:
+  _target_: models.xgboost_iris.XGBoostIris
+
+
+# Note, these numbers are usually overwritten from optimization_results.yaml
+train:
+  n_estimators: 20
+  max_depth: 3
+  learning_rate: 0.1
+  random_state: 42
+  verbosity: 0
+
+trials:
+  n_estimators: range(10,500)
+  max_depth: range(3,10)
+  learning_rate: range(0.1,1,0.01)

@@ -1,0 +1,52 @@
+
+[tool.poetry]
+name = "project_template"
+version = "0.1.0"
+description = ""
+authors = ["jotsif josef@modulai.io"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "~3.11"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24"
+isort = "^5"
+mypy = "^1"
+pytest = "^8"
+hydra-core = "^1"
+dvc = { extras = ["s3"], version = "^3" }
+pre-commit = "^3"
+flake8 = "^7"
+
+[tool.poetry.group.training.dependencies]
+xgboost = "^2"
+scikit-learn = "^1"
+pandas = "^2"
+pyarrow = "^15"
+aim = "^3"
+hydra-optuna-sweeper = "^1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+
+[tool.mypy]
+python_version = "3.10"
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+show_error_codes = true

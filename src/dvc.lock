@@ -1,0 +1,123 @@
+schema: '2.0'
+stages:
+  train:
+    cmd: "python3 src/train.py $(yq '.best_params' multirun/optimization_results.yaml
+      | sed 's/: /=/' | tr '\\n' ' ')"
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: 0c7f708eeba82ff464e0b7f61fc97f80
+      size: 473
+    - path: config/model/xgboost.yaml
+      hash: md5
+      md5: 3d232bccdd973cffa4032c14bd576a2b
+      size: 371
+    - path: config/preprocessing/iris.yaml
+      hash: md5
+      md5: b868cc0f045e8d878a5205823aac312d
+      size: 159
+    - path: data/training_data.parqeut
+      hash: md5
+      md5: 2400c2d896eb020e2775bd02270685f0
+      size: 6129
+    - path: multirun/optimization_results.yaml
+      hash: md5
+      md5: 072107c3e2a60ac8b7c6b80cbea96755
+      size: 150
+    - path: src/models/xgboost_iris.py
+      hash: md5
+      md5: ee56a45f9e607cdaba5755afba654fd8
+      size: 1091
+    - path: src/train.py
+      hash: md5
+      md5: dbe382b6d326869727bf55aad6bb899c
+      size: 1865
+    params:
+      config/model/xgboost.yaml:
+        train:
+          n_estimators: 20
+          max_depth: 3
+          learning_rate: 0.1
+          random_state: 42
+          verbosity: 0
+    outs:
+    - path: model/iris.pkl
+      hash: md5
+      md5: 35d91601048f98be75650cb07073fa1e
+      size: 72841
+    - path: src/metrics.json
+      hash: md5
+      md5: b52b881ab9fe488fba65f7a6b0dee108
+      size: 26
+  import_data:
+    cmd: python3 src/import_data.py
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: 0c7f708eeba82ff464e0b7f61fc97f80
+      size: 473
+    - path: src/import_data.py
+      hash: md5
+      md5: fe21f3c8089454b731e7631a74c6eb2f
+      size: 459
+    outs:
+    - path: data/iris.parquet
+      hash: md5
+      md5: e5e215bb3c323257c5b0b8022195b7f8
+      size: 5629
+  prepare_training_data:
+    cmd: python3 src/prepare_training_data.py
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: 0c7f708eeba82ff464e0b7f61fc97f80
+      size: 473
+    - path: config/preprocessing/iris.yaml
+      hash: md5
+      md5: b868cc0f045e8d878a5205823aac312d
+      size: 159
+    - path: data/iris.parquet
+      hash: md5
+      md5: e5e215bb3c323257c5b0b8022195b7f8
+      size: 5629
+    - path: src/prepare_training_data.py
+      hash: md5
+      md5: 795cdb71d9770b8fabe68b60710ec48a
+      size: 720
+    params:
+      config/preprocessing/iris.yaml:
+        train_fraction: 0.7
+    outs:
+    - path: data/training_data.parqeut
+      hash: md5
+      md5: 2400c2d896eb020e2775bd02270685f0
+      size: 6129
+  hyperparameter_tuning:
+    cmd: "python3 src/train.py -m $(yq '.trials' config/model/xgboost.yaml | sed 's/^/model.train./'
+      | sed 's/: /=/g' | tr '\\n' ' ')"
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: 0c7f708eeba82ff464e0b7f61fc97f80
+      size: 473
+    - path: config/model/xgboost.yaml
+      hash: md5
+      md5: e0f7a6cb8051450a47fa27952c4ce297
+      size: 332
+    - path: config/preprocessing/iris.yaml
+      hash: md5
+      md5: b868cc0f045e8d878a5205823aac312d
+      size: 159
+    - path: data/training_data.parqeut
+      hash: md5
+      md5: 2400c2d896eb020e2775bd02270685f0
+      size: 6129
+    - path: src/train.py
+      hash: md5
+      md5: dbe382b6d326869727bf55aad6bb899c
+      size: 1865
+    outs:
+    - path: multirun/optimization_results.yaml
+      hash: md5
+      md5: 072107c3e2a60ac8b7c6b80cbea96755
+      size: 150
