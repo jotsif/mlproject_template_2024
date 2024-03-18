@@ -11,7 +11,7 @@ if [ "$aim_db_timestamp" -gt "$master_timestamp" ]; then
 	if [ $db_name_changed_master -eq 1 ]; then
 		echo "- A backup of the aim db has been made"
 	else
-		echo "ERROR: But a new backup has not been made. Run make upload_aim_db and git add .aim_backup_name"
+		echo "ERROR: But a new backup has not been made. Run make upload_aim_db."
 		exit 1
 	fi
 	db_name_changed_branch=$((git diff --no-patch --exit-code .aim_backup_name); echo $?)
