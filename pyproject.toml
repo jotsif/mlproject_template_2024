@@ -18,9 +18,11 @@ hydra-core = "^1"
 dvc = { extras = ["s3"], version = "^3" }
 pre-commit = "^3"
 flake8 = "^7"
+GitPython = "^3"
 
 [tool.poetry.group.training.dependencies]
 xgboost = "^2"
+lightgbm = "^4"
 scikit-learn = "^1"
 pandas = "^2"
 pyarrow = "^15"

@@ -7,6 +7,7 @@ from pathlib import Path
 import hydra
 from aim import Run
 from aim.sdk.objects.plugins.dvc_metadata import DvcData
+from git import Repo
 from hydra.core.hydra_config import HydraConfig
 from hydra.types import RunMode
 from hydra.utils import instantiate
@@ -21,9 +22,11 @@ def main(config: DictConfig) -> float | None:
 
     logger = logging.getLogger("train")
 
-    # Use DVC experiment name if available, otherwise use the experiment name
-    # from the config and override experiment name from Hydra
-    experiment_name = os.environ.get("DVC_EXP_NAME", config.experiment_name)
+    # Use DVC experiment name if available, otherwise use the branch name
+    repo = Repo(".")
+    branch = repo.active_branch.name
+
+    experiment_name = os.environ.get("DVC_EXP_NAME", branch)
 
     aim_run = Run(
         experiment=experiment_name,
@@ -35,21 +38,24 @@ def main(config: DictConfig) -> float | None:
     aim_run["hparams"] = {
         "model_params": model_config.train,
         "run_mode": str(hydra_run_mode),
+        "model": model_config.model_class,
     }
 
     # track DVC metadata
     path_to_dvc_repo = config.dvc_dir
-    aim_run["dvc_info"] = DvcData(path_to_dvc_repo)
+    dvc_data = DvcData(path_to_dvc_repo)
+    aim_run["dvc_info"] = dvc_data
 
     model = instantiate(model_config.model_class)
 
-    model_object, metrics = model.train(logger=logger, config=config)
+    model_object, val_metrics, train_metrics = model.train(logger=logger, config=config)
 
     # Track model parameters
 
     with open(config.metrics_file, "w") as f:
-        f.write(json.dumps(metrics))
-    aim_run.track(metrics)
+        f.write(json.dumps({"val": val_metrics, "train": train_metrics}))
+    aim_run.track(val_metrics, context={"dataset": "val"})
+    aim_run.track(train_metrics, context={"dataset": "train"})
 
     if hydra_run_mode == RunMode.RUN:
         # Save the model
@@ -57,7 +63,7 @@ def main(config: DictConfig) -> float | None:
         pickle.dump(model_object, open(config.model_path, "wb"))
         return None
     elif hydra_run_mode == RunMode.MULTIRUN:
-        return float(metrics["r2"])
+        return float(val_metrics["r2"])
 
     raise ValueError(f"Unknown mode: {hydra_run_mode}")
 

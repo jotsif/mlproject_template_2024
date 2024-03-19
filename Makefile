@@ -1,4 +1,4 @@
-MODEL=$(shell yq '.defaults[0].model' config/config.yaml)
+MODEL=$(shell yq '.defaults[1].model' config/config.yaml)
 BUCKET=$(shell poetry run dvc remote list | sed 's/.*s3:\/\/\(.*\)\//\1/')
 
 

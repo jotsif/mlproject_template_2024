@@ -26,12 +26,12 @@ stages:
       size: 149
     - path: src/models/xgboost_iris.py
       hash: md5
-      md5: ee56a45f9e607cdaba5755afba654fd8
-      size: 1091
+      md5: be173a308fd9d2d2e88365e5a94ee108
+      size: 1297
     - path: src/train.py
       hash: md5
-      md5: dbe382b6d326869727bf55aad6bb899c
-      size: 1865
+      md5: dd43a8d4ee4f7a661ad2ee26be5b1252
+      size: 2063
     params:
       params.yaml:
         model.train:
@@ -47,8 +47,8 @@ stages:
       size: 137330
     - path: src/metrics.json
       hash: md5
-      md5: eb6d76364bcc3cf4282720cf7ae4256d
-      size: 26
+      md5: c07c40cf1b14388052d4e02e0908a63f
+      size: 72
   import_data:
     cmd: python3 src/import_data.py
     deps:

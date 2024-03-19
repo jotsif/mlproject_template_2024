@@ -9,7 +9,6 @@ dataset: data/iris.parquet
 model_path: model/iris.pkl
 metrics_file: src/metrics.json
 training_dataset: data/training_data.parqeut
-experiment_name: default
 dvc_dir: src
 
 
