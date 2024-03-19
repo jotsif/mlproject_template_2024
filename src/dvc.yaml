@@ -1,10 +1,7 @@
 vars:
-  - ../config/config.yaml
-  - ../config/model/xgboost.yaml
-  - model_config: config/model/xgboost.yaml
-  - preprocess_config: config/preprocessing/iris.yaml
+  - ../params.yaml
 artifacts:
-  rent_prediction_uk:
+  iris_model:
     type: model
     path: ${model_path}
 stages:
@@ -21,40 +18,38 @@ stages:
     cmd: python3 src/prepare_training_data.py
     deps:
       - src/prepare_training_data.py
-      - ${preprocess_config}
+      - config/preprocessing/${hydra.runtime.choices.preprocessing}.yaml
       - config/config.yaml
       - ${dataset}
     params:
-      - ${preprocess_config}:
-          - train_fraction
+      - preprocessing.train_fraction
     outs:
       - ${training_dataset}
   hyperparameter_tuning:
     frozen: True
     wdir: ".."
-    cmd: "python3 src/train.py -m $(yq '.trials' config/model/xgboost.yaml | sed 's/^/model.train./' | sed 's/: /=/g' | tr '\\n' ' ')"
+    cmd: "python3 src/train.py -m $(yq '.trials' config/model/${hydra.runtime.choices.model}.yaml | sed 's/^/model.train./' | sed 's/: /=/g' | tr '\\n' ' ')"
     deps:
       - src/train.py
       - ${training_dataset}
       - config/config.yaml
-      - ${model_config}
-      - ${preprocess_config}
+      - config/model/${hydra.runtime.choices.model}.yaml
+      - config/preprocessing/${hydra.runtime.choices.preprocessing}.yaml
     outs:
       - multirun/optimization_results.yaml
   train:
     wdir: ".."
     cmd: "python3 src/train.py $(yq '.best_params' multirun/optimization_results.yaml | sed 's/: /=/' | tr '\\n' ' ')"
     params:
-      - ${model_config}:
-          - train
+      - model.train
     deps:
       - multirun/optimization_results.yaml
       - src/train.py
-      - ${model_file}
-      - ${training_dataset}
       - config/config.yaml
-      - ${model_config}
-      - ${preprocess_config}
+      - ${model.model_file}
+      - ${training_dataset}
+      - config/model/${hydra.runtime.choices.model}.yaml
+      - config/preprocessing/${hydra.runtime.choices.preprocessing}.yaml
     outs:
       - ${model_path}
     metrics:

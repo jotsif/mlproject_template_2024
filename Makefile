@@ -1,4 +1,4 @@
-MODEL=$(shell yq '.defaults[0].model' config/config.yaml)
+MODEL=$(shell yq '.defaults[1].model' config/config.yaml)
 BUCKET=$(shell poetry run dvc remote list | sed 's/.*s3:\/\/\(.*\)\//\1/')
 
 
@@ -8,18 +8,19 @@ install:
 	poetry run pre-commit install --hook-type pre-push --hook-type post-checkout --hook-type pre-commit
 
 
-generate_dvc_yaml:
-	 yq '.vars[1].model_config="config/model/$(MODEL).yaml"' src/dvc-template.yaml > src/dvc.yaml
+generate_config:
+	# Write hydra config to params.yaml to be loaded by dvc when running pipeline
+	poetry run  python3 src/train.py -c all > params.yaml
 
-repro: generate_dvc_yaml
+repro: generate_config
 	SHELL=/bin/bash poetry run dvc repro src/dvc.yaml
 
-repro_with_hopt: generate_dvc_yaml
+repro_with_hopt: generate_config
 	yq -i '.stages.hyperparameter_tuning.frozen=False' src/dvc.yaml
 	SHELL=/bin/bash poetry run dvc repro src/dvc.yaml
 	yq -i '.stages.hyperparameter_tuning.frozen=True' src/dvc.yaml
 
-run_exp: generate_dvc_yaml
+run_exp: generate_config
 	# TODO: How to run with more than one parameter changed
 	SHELL=/bin/bash poetry run dvc exp run -S config/model/$(MODEL).yaml:$(EXPERIMENT) src/dvc.yaml
 

@@ -1,15 +1,15 @@
 from logging import Logger
 from typing import Any
 
+import lightgbm as lgb
 import pandas as pd
 from omegaconf import DictConfig
-from xgboost import XGBRegressor
 
 from models.abstract_model import AbstractModel
 from utils.metrics import calc_metrics
 
 
-class XGBoostIris(AbstractModel):
+class LightGBM(AbstractModel):
     def train(self, logger: Logger, config: DictConfig) -> tuple[Any, Any, Any]:
         preprocess_config = config.preprocessing
         features = preprocess_config.features
@@ -18,18 +18,12 @@ class XGBoostIris(AbstractModel):
         logger.info("Loading data from %s", config.training_dataset)
         training_data = pd.read_parquet(config.training_dataset)
         train_data = training_data[training_data["train"]]
-
         val_data = training_data[~training_data["train"]]
-        # Train the model
-        model = XGBRegressor(
-            **model_config.train,
-        )
+        train_lgb = lgb.Dataset(train_data[features], train_data[target])
+        val_lgb = lgb.Dataset(val_data[features], val_data[target])
+        model = lgb.train(dict(model_config.train), train_lgb, valid_sets=[val_lgb])
+        logger.info("Training LightGBM model")
 
-        x_train = train_data[features]
-        y_train = train_data[target]
-        logger.info("Training an XGBoost model")
-
-        model.fit(x_train, y_train)
         val_predictions = model.predict(val_data[features])
         val_actuals = val_data[target]
 
