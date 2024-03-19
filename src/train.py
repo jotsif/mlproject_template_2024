@@ -39,6 +39,7 @@ def main(config: DictConfig) -> float | None:
         "model_params": model_config.train,
         "run_mode": str(hydra_run_mode),
         "model": model_config.model_class,
+        "branch": branch,
     }
 
     # track DVC metadata

@@ -28,6 +28,7 @@ pandas = "^2"
 pyarrow = "^15"
 aim = "^3"
 hydra-optuna-sweeper = "^1"
+pytorch-lightning = "^2"
 
 
 [build-system]

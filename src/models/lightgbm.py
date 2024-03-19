@@ -3,12 +3,14 @@ from typing import Any
 
 import lightgbm as lgb
 import pandas as pd
+from omegaconf import DictConfig
 
+from models.abstract_model import AbstractModel
 from utils.metrics import calc_metrics
 
 
-class LightGBM:
-    def train(self, logger: Logger, config: Any) -> tuple[Any, Any, Any]:
+class LightGBM(AbstractModel):
+    def train(self, logger: Logger, config: DictConfig) -> tuple[Any, Any, Any]:
         preprocess_config = config.preprocessing
         features = preprocess_config.features
         target = preprocess_config.target

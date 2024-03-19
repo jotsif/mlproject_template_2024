@@ -6,6 +6,7 @@ multirun/
 .DS_Store
 .aim
 __pycache__/
+lightning_logs/
 
 
 # Gitignore params.yaml as it is generated in the Makefile

@@ -2,13 +2,15 @@ from logging import Logger
 from typing import Any
 
 import pandas as pd
+from omegaconf import DictConfig
 from xgboost import XGBRegressor
 
+from models.abstract_model import AbstractModel
 from utils.metrics import calc_metrics
 
 
-class XGBoostIris:
-    def train(self, logger: Logger, config: Any) -> tuple[Any, Any, Any]:
+class XGBoostIris(AbstractModel):
+    def train(self, logger: Logger, config: DictConfig) -> tuple[Any, Any, Any]:
         preprocess_config = config.preprocessing
         features = preprocess_config.features
         target = preprocess_config.target
