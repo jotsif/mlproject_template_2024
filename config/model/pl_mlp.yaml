@@ -1,0 +1,14 @@
+
+model_file: src/models/pl_mlp.py
+
+model_class:
+  _target_: models.pl_mlp.MLPtrainer
+
+
+train:
+  input_dim: 4
+  hidden_dim: 10
+  output_dim: 1
+  batch_size: 4
+  epochs: 100
+  lr: 0.001

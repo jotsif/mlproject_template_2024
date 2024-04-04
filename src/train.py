@@ -49,7 +49,9 @@ def main(config: DictConfig) -> float | None:
 
     model = instantiate(model_config.model_class)
 
-    model_object, val_metrics, train_metrics = model.train(logger=logger, config=config)
+    model_object, val_metrics, train_metrics = model.train(
+        logger=logger, config=config, aim_run=aim_run
+    )
 
     # Track model parameters
 

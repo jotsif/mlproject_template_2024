@@ -2,6 +2,7 @@ from logging import Logger
 from typing import Any
 
 import pandas as pd
+from aim import Run
 from omegaconf import DictConfig
 from xgboost import XGBRegressor
 
@@ -10,7 +11,9 @@ from utils.metrics import calc_metrics
 
 
 class XGBoostIris(AbstractModel):
-    def train(self, logger: Logger, config: DictConfig) -> tuple[Any, Any, Any]:
+    def train(
+        self, logger: Logger, config: DictConfig, aim_run: Run
+    ) -> tuple[Any, Any, Any]:
         preprocess_config = config.preprocessing
         features = preprocess_config.features
         target = preprocess_config.target
