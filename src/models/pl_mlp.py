@@ -4,6 +4,7 @@ from typing import Any
 import pandas as pd
 import pytorch_lightning as pl
 import torch
+from aim import Run
 from omegaconf import DictConfig
 from torch import nn
 
@@ -50,9 +51,10 @@ class IrisData(pl.LightningDataModule):
 
 
 class MLP(pl.LightningModule):
-    def __init__(self, config: DictConfig) -> None:
+    def __init__(self, config: DictConfig, aim_run: Run) -> None:
         super(MLP, self).__init__()
         self.config = config
+        self.aim_run = aim_run
         self.input_dim = config.input_dim
         self.hidden_dim = config.hidden_dim
         self.output_dim = config.output_dim
@@ -70,12 +72,24 @@ class MLP(pl.LightningModule):
         x, y = batch
         y_hat = self.model(x)
         loss = self.loss(y_hat, y)
+        self.aim_run.track(
+            value=loss,
+            name="loss",
+            epoch=self.current_epoch,
+            context={"dataset": "train"},
+        )
         return loss
 
     def valdation_step(self, batch: torch.Tensor, batch_idx: int) -> torch.Tensor:
         x, y = batch
         y_hat = self.model(x)
         loss = self.loss(y_hat, y)
+        self.aim_run.track(
+            value=loss,
+            name="loss",
+            epoch=self.current_epoch,
+            context={"dataset": "val"},
+        )
         return loss
 
     def configure_optimizers(self) -> torch.optim.Optimizer:
@@ -107,8 +121,10 @@ class MLP(pl.LightningModule):
 
 
 class MLPtrainer(AbstractModel):
-    def train(self, logger: Logger, config: DictConfig) -> tuple[Any, Any, Any]:
-        mlp = MLP(config.model.train)
+    def train(
+        self, logger: Logger, config: DictConfig, aim_run: Run
+    ) -> tuple[Any, Any, Any]:
+        mlp = MLP(config.model.train, aim_run=aim_run)
         dataloader = IrisData(config)
         trainer = pl.Trainer(max_epochs=config.model.train.epochs)
         trainer.fit(mlp, dataloader)

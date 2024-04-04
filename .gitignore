@@ -1,8 +1,8 @@
 .venv
-data/
-model
-outputs
-multirun/
+/data
+/model
+/outputs
+/multirun
 .DS_Store
 .aim
 __pycache__/
